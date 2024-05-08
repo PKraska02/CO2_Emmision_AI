@@ -1,37 +1,29 @@
-import os
 import pandas as pd
-import seaborn as sns
-from sklearn.model_selection import train_test_split
-#import tensorflow as tf
-import numpy as np
-
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
 
 def main():
     file = r"C:\Users\Piotr\source\repos\CO2-Emmision-AI\archive\CO2 Emissions_Canada.csv"
     df = pd.read_csv(file)
-    data = df.dtypes
-    print(data)
-    ## Normalize Data ##
-    x = data.drop("CO2 Emissions(g/km)")
-    y = data["CO2 Emissions(g/km)"]
-    '''
-    # TODO, przerobić z przykładem do naszych danych
-    # Załóżmy, że masz dane wejściowe w postaci listy kolorów jako stringi
-colors = ['red', 'blue', 'green', 'red', 'white']
 
-# Tworzenie słownika mapującego unikalne kolory na liczby całkowite
-color_to_index = {'red': 0, 'blue': 1, 'green': 2, 'white': 3}
+    # Wybór cech i etykiety
+    X = df.drop(columns=["Make", "Model", "Vehicle Class", "CO2 Emissions(g/km)"])
+    y = df["CO2 Emissions(g/km)"]
+    #Obsługa Kolumhy Transmitter, ktora jest Stringiem!
 
-# Przekształcenie kolorów na liczby całkowite przy użyciu mapowania
-indexed_colors = [color_to_index[color] for color in colors]
+    # Tworzenie modelu
+    model = Sequential([
+        Dense(64, activation='relu', input_shape=(X.shape[1],)),
+        Dense(32, activation='relu'),
+        Dense(1)  # Warstwa wyjściowa
+    ])
 
-# Konwersja indeksów kolorów na wektory one-hot
-one_hot_colors = tf.keras.utils.to_categorical(indexed_colors)
+    # Kompilacja modelu
+    model.compile(optimizer='adam', loss='mean_squared_error')
 
-# Wyświetlenie przekształconych danych
-print(one_hot_colors)
-    '''
-    ## Make model ##
+    # Trenowanie modelu
+    model.fit(X, y, epochs=50, batch_size=32, validation_split=0.2)
 
 if __name__ == "__main__":
     main()
