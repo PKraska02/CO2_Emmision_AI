@@ -23,7 +23,7 @@ def main():
     model.add(Dense(units=32, activation='relu', input_dim=len(X_train.columns)))
     model.add(Dense(units=64, activation='relu'))
     model.add(Dense(units=1, activation='linear'))
-    model.compile(loss='mean_squared_logarithmic_error', optimizer='Adam', metrics=['accuracy'])
+    model.compile(loss='mean_squared_logarithmic_error', optimizer='adam')
     model.fit(X_train, Y_train, epochs=200, batch_size=32)
 
     y_hat = model.predict(X_test)
