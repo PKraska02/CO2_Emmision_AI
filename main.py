@@ -1,6 +1,5 @@
 import tkinter as tk
 
-import Actual_Model as am
 import GUI as gui
 from AI_model import create_model
 
@@ -9,7 +8,7 @@ def main():
     print("Create GUI")
     root = tk.Tk()
     root.title("Aplikacja predykująca emisję CO2 pojazdu")
-    root.geometry("1280x840")
+    root.geometry("1100x700")
 
     # Define a style for the buttons
     button_style = {
@@ -45,7 +44,8 @@ def main():
     button_plot_style = button_style.copy()
     button_plot_style['width'] = 40  # Increase width of the middle button
 
-    button_plot = tk.Button(button_frame, text="Pokaż wykres skuteczności aktualnego modelu", command=lambda: gui.show_plot(am.model, am.X_test, am.Y_test),
+    button_plot = tk.Button(button_frame, text="Pokaż wykres dokładności aktualnego modelu",
+                            command=lambda: gui.show_plot(),
                             **button_plot_style)
     button_plot.grid(row=0, column=1, padx=10, pady=10)
 

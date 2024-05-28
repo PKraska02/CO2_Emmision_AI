@@ -1,13 +1,13 @@
+import os
+
 import keras
 import pandas as pd
+from keras._tf_keras.keras.layers import Dense
+from keras._tf_keras.keras.models import Sequential
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from keras._tf_keras.keras.models import Sequential
-from keras._tf_keras.keras.layers import Dense
-import os
-import GUI as gui
-import Actual_Model as am
 
+import Actual_Model as am
 
 
 def create_model():
@@ -36,9 +36,9 @@ def create_model():
         # Obsługa Kolumny Transmission, ktora jest Stringiem!
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2)
         # Skalowanie
-        sc = StandardScaler()
-        X_train = sc.fit_transform(X_train)
-        X_test = sc.transform(X_test)
+        am.sc = StandardScaler()
+        X_train = am.sc.fit_transform(X_train)
+        X_test = am.sc.transform(X_test)
     else:
         print("Create new model")
         file = "CO2_Emissions_Canada.csv"
@@ -59,9 +59,9 @@ def create_model():
         # Obsługa Kolumny Transmission, ktora jest Stringiem!
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2)
         # Skalowanie
-        sc = StandardScaler()
-        X_train = sc.fit_transform(X_train)
-        X_test = sc.transform(X_test)
+        am.sc = StandardScaler()
+        X_train = am.sc.fit_transform(X_train)
+        X_test = am.sc.transform(X_test)
         # Create model
         model = Sequential()
         model.add(Dense(units=32, activation='relu', input_dim=X_train.shape[1]))
@@ -85,3 +85,35 @@ def update_model():
     else:
         print(f"Plik {model_path} nie istnieje.")
     create_model()
+
+
+def preprocess_input(input_data):
+    # Tworzenie DataFrame'a z danymi wejściowymi
+    input_df = pd.DataFrame([input_data])
+
+    # Przekształcenie zmiennych kategorycznych
+    input_transmission = pd.get_dummies(input_df["Transmission"])
+    input_fuel_type = pd.get_dummies(input_df["Fuel Type"])
+
+    # Łączenie przekształconych danych z danymi oryginalnymi
+    input_df = pd.concat([input_df.drop(columns=["Transmission", "Fuel Type"]), input_transmission, input_fuel_type], axis=1)
+
+    # Uzyskanie listy kolumn użytych podczas treningu modelu
+    columns_used_during_training = [
+        'Engine Size(L)', 'Cylinders', 'Fuel Consumption City (L/100 km)', 'Fuel Consumption Hwy (L/100 km)', 'Fuel Consumption Comb (L/100 km)',
+        'A10', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'AM5', 'AM6', 'AM7', 'AM8', 'AM9', 'AS10', 'AS4', 'AS5', 'AS6', 'AS7', 'AS8', 'AS9',
+        'AV', 'AV10', 'AV6', 'AV7', 'AV8', 'M5', 'M6', 'M7', 'D', 'E', 'N', 'X', 'Z'
+    ]
+
+    # Dodaj brakujące kolumny z wartościami domyślnymi (zerami)
+    for col in columns_used_during_training:
+        if col not in input_df.columns:
+            input_df[col] = 0
+
+    # Upewnij się, że kolumny są w tej samej kolejności co podczas treningu modelu
+    input_df = input_df[columns_used_during_training]
+
+    # Skalowanie danych
+    input_df_scaled = am.sc.transform(input_df)
+
+    return input_df_scaled

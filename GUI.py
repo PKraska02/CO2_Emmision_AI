@@ -4,68 +4,110 @@ from tkinter import messagebox
 import matplotlib.pyplot as plt
 
 import AI_model as ai
+import Actual_Model as am
+from tkinter import ttk
 
 
-def show_plot(model, X_test, Y_test):
+def show_plot():
     # Wykonaj predykcję za pomocą modelu
-    y_pred = model.predict(X_test)
+    y_pred = am.model.predict(am.X_test)
 
     # Sortowanie danych testowych i przewidywanych według indeksu
-    sorted_indices = Y_test.argsort()
-    Y_test_sorted = Y_test.iloc[sorted_indices]
+    sorted_indices = am.Y_test.argsort()
+    Y_test_sorted = am.Y_test.iloc[sorted_indices]
     y_pred_sorted = y_pred[sorted_indices]
 
     # Rysowanie posortowanych danych
     plt.scatter(Y_test_sorted, y_pred_sorted, color='blue')
     plt.plot([Y_test_sorted.min(), Y_test_sorted.max()], [Y_test_sorted.min(), Y_test_sorted.max()], color='red',
              linestyle='--')
-    plt.xlabel('Actual CO2 Emissions(g/km)')
-    plt.ylabel('Predicted CO2 Emissions(g/km)')
-    plt.title('Actual vs Predicted CO2 Emissions')
+    plt.xlabel('Aktualna Emisja CO2(g/km)')
+    plt.ylabel('Przewidywana Emisja CO2(g/km)')
+    plt.title('Aktualna vs Przewidywana Emisja CO2')
     plt.show()
+
 
 def display_form(container):
     # Clear the container
     for widget in container.winfo_children():
         widget.destroy()
 
-    # Define the labels and entry fields
-    fields = [
-        'Marka', 'Model', 'Klasa pojazdu', 'Pojemność silnika (L)', 'Cylindry',
-        'Skrzynia biegów', 'Rodzaj paliwa', 'Zużycie paliwa w mieście (L/100 km)',
-        'Zużycie paliwa na autostradzie (L/100 km)', 'Średnie zużycie paliwa (L/100 km)',
-        'Średnie zużycie paliwa (mpg)'
+    # Oryginalne etykiety kolumn
+    original_labels = {
+        'Engine Size(L)': 'Pojemność silnika (L)',
+        'Cylinders': 'Cylindry',
+        'Transmission': 'Skrzynia biegów',
+        'Fuel Type': 'Rodzaj paliwa',
+        'Fuel Consumption City (L/100 km)': 'Zużycie paliwa w mieście (L/100 km)',
+        'Fuel Consumption Hwy (L/100 km)': 'Zużycie paliwa na autostradzie (L/100 km)',
+        'Fuel Consumption Comb (L/100 km)': 'Średnie zużycie paliwa (L/100 km)'
+    }
+
+    numeric_fields = [
+        'Engine Size(L)',
+        'Fuel Consumption City (L/100 km)',
+        'Fuel Consumption Hwy (L/100 km)',
+        'Fuel Consumption Comb (L/100 km)'
     ]
+
+    transmission_options = [
+        'A10', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'AM5', 'AM6', 'AM7', 'AM8', 'AM9',
+        'AS10', 'AS4', 'AS5', 'AS6', 'AS7', 'AS8', 'AS9', 'AV', 'AV10', 'AV6', 'AV7', 'AV8', 'M5', 'M6', 'M7'
+    ]
+
+    fuel_type_options = ['D', 'E', 'N', 'X', 'Z']
 
     entries = {}
 
-    for i, field in enumerate(fields):
-        label = tk.Label(container, text=field)
+    # Create a frame to center the form
+    form_frame = tk.Frame(container, padx=20, pady=20)
+    form_frame.pack(expand=True)
+
+    for i, field in enumerate(original_labels.keys()):
+        label_text = original_labels[field]
+        label = tk.Label(form_frame, text=label_text)  # Użyj przetłumaczonych etykiet
         label.grid(row=i, column=0, padx=10, pady=5, sticky=tk.W)
 
-        entry = tk.Entry(container, width=30)
+        if field in numeric_fields:
+            entry = tk.Spinbox(form_frame, from_=0, to=100, increment=0.1, width=30)
+        elif field == 'Cylinders':
+            entry = tk.Spinbox(form_frame, from_=0, to=16, increment=1, width=30)
+        elif field == 'Transmission':
+            entry = ttk.Combobox(form_frame, values=transmission_options, width=30, state='readonly')
+        elif field == 'Fuel Type':
+            entry = ttk.Combobox(form_frame, values=fuel_type_options, width=30, state='readonly')
+        else:
+            entry = tk.Entry(form_frame, width=32)
+
         entry.grid(row=i, column=1, padx=10, pady=5)
         entries[field] = entry
 
     # Define the submit function
     def submit():
         input_data = {field: entry.get() for field, entry in entries.items()}
+        for field, value in input_data.items():
+            if value == "":
+                messagebox.showerror("Błąd", f"Pole '{original_labels[field]}' nie może być puste.")
+                return
         # Clear the form
         for widget in container.winfo_children():
             widget.destroy()
-        #TODO obliczenia
-
+        # Przetwórz dane wejściowe w odpowiedni format
+        input_features = ai.preprocess_input(input_data)
+        pred_c02_emmision = am.model.predict(input_features)
         # Display the result
-        result_text = f"Przewidywana emisja CO2 twojego pojazdu wynosi: {input_data.get('Emisja CO2 (g/km)', 'Unknown')}"
+        result_text = f"Przewidywana emisja CO2 twojego pojazdu wynosi: {pred_c02_emmision.item()} g/km"
         result_label = tk.Label(container, text=result_text, font=("Arial", 16))
         result_label.pack(pady=20)
 
     # Add a submit button
-    submit_button = tk.Button(container, text="Wyślij", command=submit)
-    submit_button.grid(row=len(fields), column=0, columnspan=2, pady=10)
+    submit_button = tk.Button(form_frame, text="Wyślij", command=submit)
+    submit_button.grid(row=len(original_labels), column=0, columnspan=2, pady=20)
 
-    result_label = tk.Label(container, text="")
-    result_label.grid(row=len(fields) + 1, column=0, columnspan=2)
+    result_label = tk.Label(form_frame, text="")
+    result_label.grid(row=len(original_labels) + 1, column=0, columnspan=2)
+
+
 
 def update_model():
     def on_yes():
@@ -93,7 +135,9 @@ def update_model():
 
     confirmation_window.geometry(f"{window_width}x{window_height}+{position_right}+{position_top}")
 
-    label = tk.Label(confirmation_window, text="Czy na pewno chcesz kontynuować? Operacja pernamentnie usunie aktualny model i utworzy nowy.", font=("Arial", 14))
+    label = tk.Label(confirmation_window,
+                     text="Czy na pewno chcesz kontynuować? Operacja pernamentnie usunie aktualny model i utworzy nowy.",
+                     font=("Arial", 14))
     label.pack(pady=20)
 
     button_frame = tk.Frame(confirmation_window)
