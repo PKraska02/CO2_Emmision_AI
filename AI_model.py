@@ -1,11 +1,12 @@
 import keras
 import pandas as pd
-import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from keras._tf_keras.keras.models import Sequential
 from keras._tf_keras.keras.layers import Dense
 import os
+import GUI as gui
+import Actual_Model as am
 
 
 
@@ -17,7 +18,7 @@ def create_model():
         # Plik istnieje, wczytaj model
         model = keras.models.load_model(model_path)
         print("Create new parameters")
-        file = r"C:\Users\Piotr\source\repos\CO2-Emmision-AI\CO2_Emissions_Canada.csv"
+        file = "CO2_Emissions_Canada.csv"
         df = pd.read_csv(file)
         # Wybór cech i etykiety
         df_x = df.drop(columns=["Make", "Model", "Vehicle Class", "CO2 Emissions(g/km)", "Fuel Consumption Comb (mpg)"])
@@ -40,7 +41,7 @@ def create_model():
         X_test = sc.transform(X_test)
     else:
         print("Create new model")
-        file = r"C:\Users\Piotr\source\repos\CO2-Emmision-AI\CO2_Emissions_Canada.csv"
+        file = "CO2_Emissions_Canada.csv"
         df = pd.read_csv(file)
         # Wybór cech i etykiety
         df_x = df.drop(columns=["Make", "Model", "Vehicle Class", "CO2 Emissions(g/km)", "Fuel Consumption Comb (mpg)"])
@@ -71,8 +72,16 @@ def create_model():
         # Save the model
         model.save("my_model.keras")
 
-    return model, X_test, Y_test
+    am.model = model
+    am.X_test = X_test
+    am.Y_test = Y_test
 
 
 def update_model():
-    pass
+    model_path = 'my_model.keras'
+    if os.path.exists(model_path):
+        os.remove(model_path)
+        print(f"Plik {model_path} został usunięty.")
+    else:
+        print(f"Plik {model_path} nie istnieje.")
+    create_model()
