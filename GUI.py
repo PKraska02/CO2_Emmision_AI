@@ -55,7 +55,13 @@ def display_form(container):
         'AS10', 'AS4', 'AS5', 'AS6', 'AS7', 'AS8', 'AS9', 'AV', 'AV10', 'AV6', 'AV7', 'AV8', 'M5', 'M6', 'M7'
     ]
 
-    fuel_type_options = ['D', 'E', 'N', 'X', 'Z']
+    fuel_type_labels = {
+        'D': 'Diesel',
+        'E': 'Benzyna (Etanol)',
+        'N': 'Naturalny gaz',
+        'X': 'LPG',
+        'Z': 'Wodór'
+    }
 
     entries = {}
 
@@ -75,7 +81,8 @@ def display_form(container):
         elif field == 'Transmission':
             entry = ttk.Combobox(form_frame, values=transmission_options, width=30, state='readonly')
         elif field == 'Fuel Type':
-            entry = ttk.Combobox(form_frame, values=fuel_type_options, width=30, state='readonly')
+            translated_fuel_types = [f"{key} - {value}" for key, value in fuel_type_labels.items()]
+            entry = ttk.Combobox(form_frame, values=translated_fuel_types, width=30, state='readonly')
         else:
             entry = tk.Entry(form_frame, width=32)
 
