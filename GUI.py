@@ -50,10 +50,37 @@ def display_form(container):
         'Fuel Consumption Comb (L/100 km)'
     ]
 
-    transmission_options = [
-        'A10', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'AM5', 'AM6', 'AM7', 'AM8', 'AM9',
-        'AS10', 'AS4', 'AS5', 'AS6', 'AS7', 'AS8', 'AS9', 'AV', 'AV10', 'AV6', 'AV7', 'AV8', 'M5', 'M6', 'M7'
-    ]
+    transmission_options = {
+        'A10': 'A10 (Cadillac, Chevrolet, Dodge)',
+        'A4': 'A4',
+        'A5': 'A5',
+        'A6': 'A6 (Acura, Audi, BMW, Chrysler, Ford, Honda, Hyundai, Jaguar, Jeep, Kia, Lamborghini, Land Rover, Lexus, Lincoln, Mazda, Mitsubishi, Nissan, Porsche, Subaru, Toyota, Volkswagen, Volvo)',
+        'A7': 'A7 (Infiniti, Lamborghini, Mercedes-Benz, Nissan, Porsche)',
+        'A8': 'A8 (Alfa Romeo, Aston Martin, Audi, Bentley, BMW, Buick, Cadillac, Chevrolet, Chrysler, Dodge, Genesis, GMC, Honda, Hyundai, Jaguar, Jeep, Kia, Lamborghini, Land Rover, Lexus, Lincoln, Maserati, Mazda, Mercedes-Benz, MINI, Mitsubishi, Nissan, Porsche, Ram, Rolls-Royce, Toyota, Volkswagen, Volvo)',
+        'A9': 'A9 (Acura, Audi, Buick, Cadillac, Honda, Hyundai, Mercedes-Benz)',
+        'AAM': 'AM (Audi, Bentley, BMW, Buick, Cadillac, Chevrolet, Dodge, Ford, Genesis, GMC, Hyundai, Kia, Lexus, Lincoln, Mercedes-Benz, Nissan, Porsche)',
+        'AM4': 'AM4 (Audi, BMW, Chevrolet, Dodge, Ford)',
+        'AM5': 'AM5 (Audi, Dodge)',
+        'AM6': 'AM6 (Acura, Audi, BMW, Buick, Cadillac, Chevrolet, Chrysler, Dodge, Ford, GMC, Honda, Hyundai, Kia, Land Rover, Lexus, Lincoln, Mazda, MINI, Mitsubishi, Nissan, Porsche, Ram)',
+        'AM7': 'AM7 (Aston Martin, Audi, Lamborghini, Mercedes-Benz, McLaren, Porsche)',
+        'AM8': 'AM8 (Aston Martin, Bentley, BMW, Infiniti, Jaguar, Jeep, Maserati, Mercedes-Benz, Nissan, Porsche)',
+        'AM9': 'AM9 (Audi)',
+        'AS10': 'AS10 (Ford, Honda)',
+        'AS4': 'AS4 (FIAT)',
+        'AS5': 'AS5 (FIAT)',
+        'AS6': 'AS6 (Acura, Alfa Romeo, Aston Martin, Audi, BMW, Buick, Cadillac, Chevrolet, Chrysler, Dodge, Ford, Genesis, Honda, Hyundai, Jaguar, Jeep, Kia, Lamborghini, Land Rover, Lexus, Lincoln, Mazda, Mitsubishi, Nissan, Porsche, Subaru, Tesla, Toyota, Volkswagen)',
+        'AS7': 'AS7 (Aston Martin, Bentley, Honda, Jaguar, Jeep, Lamborghini, Land Rover, Mercedes-Benz, Porsche)',
+        'AS8': 'AS8 (Acura, Alfa Romeo, Aston Martin, Audi, Bentley, BMW, Buick, Cadillac, Chevrolet, Chrysler, Dodge, Genesis, Honda, Hyundai, Infiniti, Jaguar, Jeep, Kia, Lamborghini, Land Rover, Lexus, Maserati, Mazda, Mercedes-Benz, MINI, Nissan, Porsche, Rolls-Royce, Subaru, Toyota, Volkswagen)',
+        'AS9': 'AS9 (Buick, Cadillac, Dodge, Jeep)',
+        'AV': 'AV (Acura, Audi, Bentley, BMW, Buick, Cadillac, Chevrolet, Chrysler, Ford, GMC, Honda, Hyundai, Infiniti, Jaguar, Jeep, Kia, Lamborghini, Land Rover, Lexus, Lincoln, Maserati, Mazda, Mercedes-Benz, MINI, Mitsubishi, Nissan, Porsche, Subaru, Tesla, Toyota, Volkswagen, Volvo)',
+        'AV10': 'AV10 (Acura)',
+        'AV6': 'AV6 (Audi, Ford, Hyundai, Kia, Nissan, Subaru, Volkswagen)',
+        'AV7': 'AV7 (Audi, Bentley, Lamborghini, Mercedes-Benz, Nissan, Porsche, Volkswagen)',
+        'AV8': 'AV8 (Audi, BMW, Hyundai)',
+        'M5': 'M5 (Audi)',
+        'M6': 'M6 (Aston Martin, Audi, BMW, Ford, Honda, Jaguar, Lamborghini, MINI, Mitsubishi, Nissan, Porsche, Subaru, Volkswagen, Volvo)',
+        'M7': 'M7 (Aston Martin, Audi, Lamborghini, Mercedes-Benz, Porsche)',
+    }
 
     fuel_type_labels = {
         'D': 'Diesel',
@@ -79,7 +106,8 @@ def display_form(container):
         elif field == 'Cylinders':
             entry = tk.Spinbox(form_frame, from_=0, to=16, increment=1, width=30)
         elif field == 'Transmission':
-            entry = ttk.Combobox(form_frame, values=transmission_options, width=30, state='readonly')
+            transmission_values = [f"{option}" for option in transmission_options.values()]
+            entry = ttk.Combobox(form_frame, values=transmission_values, width=30, state='readonly')
         elif field == 'Fuel Type':
             translated_fuel_types = [f"{key} - {value}" for key, value in fuel_type_labels.items()]
             entry = ttk.Combobox(form_frame, values=translated_fuel_types, width=30, state='readonly')
