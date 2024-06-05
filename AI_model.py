@@ -2,11 +2,12 @@ import os
 
 import keras
 import pandas as pd
-from keras._tf_keras.keras.layers import Dense
+from keras._tf_keras.keras.layers import Dense, Dropout
 from keras._tf_keras.keras.models import Sequential
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 import Actual_Model as am
 
 
@@ -17,6 +18,25 @@ def create_model():
         model_path = "my_model.keras"
         # Plik istnieje, wczytaj model
         model = keras.models.load_model(model_path)
+
+        model_weights = model.get_weights()
+
+        # Ustalenie liczby warstw
+        num_layers = len(model_weights) // 2  # Dla każdej warstwy mamy wagi i biasy
+
+        # Stworzenie map cieplnych dla każdej warstwy wag
+        fig, axes = plt.subplots(1, num_layers, figsize=(20, 6))
+
+        for i in range(num_layers):
+            weights = model_weights[2 * i]  # Wagi są na parzystych indeksach
+            ax = axes[i] if num_layers > 1 else axes
+            sns.heatmap(weights, annot=False, fmt=".2f", cmap="coolwarm", ax=ax)
+            ax.set_title(f"Layer {i + 1} Weights")
+            ax.set_xlabel("Neurons in Layer")
+            ax.set_ylabel("Input Features")
+
+        plt.tight_layout()
+        plt.show()
         print("Create new parameters")
         file = "CO2_Emissions_Canada.csv"
         df = pd.read_csv(file)
@@ -57,7 +77,7 @@ def create_model():
         X = X.drop(columns=["Transmission", "Fuel Type"])
         Y = df["CO2 Emissions(g/km)"]
         # Obsługa Kolumny Transmission, ktora jest Stringiem!
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.3)
         # Skalowanie
         am.sc = StandardScaler()
         X_train = am.sc.fit_transform(X_train)
@@ -65,10 +85,12 @@ def create_model():
         # Create model
         model = Sequential()
         model.add(Dense(units=32, activation='relu', input_dim=X_train.shape[1]))
+        model.add(Dropout(0.2))
         model.add(Dense(units=64, activation='relu'))
+        model.add(Dropout(0.2))
         model.add(Dense(units=1, activation='linear'))
         model.compile(loss='mean_squared_logarithmic_error', optimizer='adam')
-        model.fit(X_train, Y_train, epochs=15000, batch_size=32)
+        model.fit(X_train, Y_train, epochs=1500, batch_size=32)
         # Save the model
         model.save("my_model.keras")
 
