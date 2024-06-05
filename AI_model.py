@@ -68,7 +68,7 @@ def create_model():
         model.add(Dense(units=64, activation='relu'))
         model.add(Dense(units=1, activation='linear'))
         model.compile(loss='mean_squared_logarithmic_error', optimizer='adam')
-        model.fit(X_train, Y_train, epochs=200, batch_size=32)
+        model.fit(X_train, Y_train, epochs=15000, batch_size=32)
         # Save the model
         model.save("my_model.keras")
 
