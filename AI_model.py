@@ -19,24 +19,6 @@ def create_model():
         # Plik istnieje, wczytaj model
         model = keras.models.load_model(model_path)
 
-        model_weights = model.get_weights()
-
-        # Ustalenie liczby warstw
-        num_layers = len(model_weights) // 2  # Dla każdej warstwy mamy wagi i biasy
-
-        # Stworzenie map cieplnych dla każdej warstwy wag
-        fig, axes = plt.subplots(1, num_layers, figsize=(20, 6))
-
-        for i in range(num_layers):
-            weights = model_weights[2 * i]  # Wagi są na parzystych indeksach
-            ax = axes[i] if num_layers > 1 else axes
-            sns.heatmap(weights, annot=False, fmt=".2f", cmap="coolwarm", ax=ax)
-            ax.set_title(f"Layer {i + 1} Weights")
-            ax.set_xlabel("Neurons in Layer")
-            ax.set_ylabel("Input Features")
-
-        plt.tight_layout()
-        plt.show()
         print("Create new parameters")
         file = "CO2_Emissions_Canada.csv"
         df = pd.read_csv(file)
